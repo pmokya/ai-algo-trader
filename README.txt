@@ -1,22 +1,31 @@
-Mokya’s AI Algo Trader V3
+Mokya’s AI Algo Trader V4
 ==========================
-V3 dashboard prepared for live market-data integration.
+V4 introduces the Strategy Lab architecture.
 
-Current:
-- Paper mode only
-- Simulated market ticks
-- Watchlist
-- AI signal cards
-- Portfolio trend
-- Starting-capital benchmark
-- P&L and drawdown
-- Start/Stop/Reset/Emergency Stop
+Included:
+- Existing portfolio dashboard and capital-vs-value trend
+- Watchlist and stock-detail view
+- Candlestick detail screen (currently simulated)
+- Strategy 1: AI Multi-Filter
+- Strategy 2: Supertrend AI
+- Strategy 3 reserved for future strategies
+- Select/activate one strategy for paper execution
+- Parallel strategy performance comparison
+- Market-regime comparison
+- Strategy recommendation
+- Validation gate
+- Paper-only Start/Stop/Reset/Emergency Stop
+- Strategy logging
 
-NOT CONNECTED:
-- Angel One credentials
-- Real market data
-- Real orders
-- Live trading
+IMPORTANT:
+This V4 is a UI/paper-trading architecture prototype. Market ticks, candles and strategy statistics are sample/simulated values. No live market data, broker credentials, or real orders are connected.
 
-Next integration:
-A secure backend will authenticate with Angel One SmartAPI and stream market data to the dashboard. Credentials must remain server-side, not in GitHub Pages JavaScript.
+Future:
+- Angel One SmartAPI live feed
+- Historical data
+- Real backtesting
+- Persistent trade database
+- Multiple strategies running in parallel
+- Out-of-sample validation
+- Cost/slippage modeling
+- Controlled live-trading gate

@@ -6,49 +6,44 @@
 <meta name="theme-color" content="#07111f">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
-<title>Mokya’s AI Algo Trader</title>
+<title>Mokya’s AI Algo Trader V4</title>
 </head>
 <body>
 <header>
-  <div><div class="eyebrow">MOKYA’S AI ALGO TRADER</div><h1>Live Paper Dashboard</h1></div>
-  <span id="mode" class="badge">● PAPER</span>
+  <div><div class="eyebrow">MOKYA’S AI ALGO TRADER</div><h1>Strategy Lab</h1></div>
+  <span class="badge">● PAPER ONLY</span>
 </header>
 
+<nav class="tabs">
+<button class="tab active" data-tab="dashboard">Dashboard</button>
+<button class="tab" data-tab="lab">Strategy Lab</button>
+<button class="tab" data-tab="stock">Stock Detail</button>
+</nav>
+
 <main>
+<section id="dashboard" class="view active">
 <section class="status card">
-  <div><span class="muted">Market Feed</span><strong id="feedStatus">SIMULATED</strong></div>
-  <div><span class="muted">Engine</span><strong id="engine">STOPPED</strong></div>
-  <div><span class="muted">Last Update</span><strong id="lastUpdate">—</strong></div>
+<div><span class="muted">Engine</span><strong id="engine">STOPPED</strong></div>
+<div><span class="muted">Active Strategy</span><strong id="activeStrategy">Strategy 1</strong></div>
+<div><span class="muted">Mode</span><strong>PAPER</strong></div>
 </section>
 
 <section class="metrics">
-  <div class="card metric"><span>Starting Capital</span><b id="capital">₹1,00,000</b></div>
-  <div class="card metric"><span>Portfolio Value</span><b id="current">₹1,00,000</b></div>
-  <div class="card metric"><span>P&amp;L</span><b id="pnl">₹0</b><small id="pnlPct">0.00%</small></div>
-  <div class="card metric"><span>Max Drawdown</span><b id="drawdown">₹0</b></div>
+<div class="card metric"><span>Starting Capital</span><b>₹1,00,000</b></div>
+<div class="card metric"><span>Portfolio Value</span><b id="current">₹1,00,000</b></div>
+<div class="card metric"><span>P&amp;L</span><b id="pnl">₹0</b><small id="pnlPct">0.00%</small></div>
+<div class="card metric"><span>Max Drawdown</span><b id="drawdown">₹0</b></div>
 </section>
 
 <section class="card">
-  <div class="section-title">Portfolio Trend <span class="live">PAPER FEED</span></div>
-  <div class="legend"><span><i class="dot base"></i> Capital</span><span><i class="dot actual"></i> Portfolio</span></div>
-  <div class="chart-wrap"><canvas id="chart"></canvas></div>
-  <div class="chart-note">Capital remains fixed as the benchmark. Portfolio value is marked continuously in paper mode.</div>
+<div class="section-title">Portfolio Trend</div>
+<div class="legend"><span><i class="dot base"></i> Capital</span><span><i class="dot actual"></i> Portfolio</span></div>
+<div class="chart-wrap"><canvas id="chart"></canvas></div>
 </section>
 
 <section class="card">
-  <div class="section-title">Watchlist <span class="live">DEMO TICKS</span></div>
-  <div id="watchlist"></div>
-</section>
-
-<section class="grid2">
-<section class="card">
-<div class="section-title">AI Signals</div>
-<div id="signals"></div>
-</section>
-<section class="card">
-<div class="section-title">Paper Positions</div>
-<div id="positions"><div class="empty">No open positions</div></div>
-</section>
+<div class="section-title">Watchlist <span class="live">PAPER FEED</span></div>
+<div id="watchlist"></div>
 </section>
 
 <section class="controls">
@@ -57,16 +52,52 @@
 <button id="reset">↺ RESET</button>
 <button id="emergency" class="danger">🛑 EMERGENCY STOP</button>
 </section>
-
-<section class="card small">
-<div class="section-title">System Log</div>
-<pre id="log">Ready. Paper mode only. No live orders are enabled.</pre>
 </section>
 
-<section class="card warning">
-<b>V3 connection status</b>
-<p>The dashboard is prepared for Angel One SmartAPI integration, but this build intentionally uses simulated ticks. No API credentials or real orders are used.</p>
+<section id="lab" class="view">
+<section class="card">
+<div class="section-title">Strategy Selection</div>
+<div id="strategyCards"></div>
+<button id="activate" class="primary full">ACTIVATE SELECTED FOR PAPER TRADING</button>
 </section>
+
+<section class="card">
+<div class="section-title">Strategy Performance</div>
+<div class="table" id="performance"></div>
+</section>
+
+<section class="card">
+<div class="section-title">Market Regime Performance</div>
+<div id="regimes"></div>
+</section>
+
+<section class="card">
+<div class="section-title">Strategy Recommendation</div>
+<div id="recommendation" class="recommendation"></div>
+</section>
+
+<section class="card">
+<div class="section-title">Validation Gate</div>
+<div id="validation"></div>
+</section>
+</section>
+
+<section id="stock" class="view">
+<section class="card stock-head">
+<div><button class="back" id="backDash">← Dashboard</button><h2 id="stockName">RELIANCE</h2></div>
+<div class="stock-price"><b id="stockPrice">₹1,482.30</b><span id="stockChange">+0.00%</span></div>
+</section>
+<section class="card">
+<div class="timeframes"><button>1m</button><button class="selected">5m</button><button>15m</button><button>30m</button><button>1H</button><button>1D</button></div>
+<div class="candle-wrap"><canvas id="candles"></canvas></div>
+</section>
+<section class="grid2">
+<div class="card"><div class="section-title">AI Signal</div><div id="stockSignal" class="bigSignal">BUY</div><div class="muted">Confidence <b id="stockConf">87%</b></div></div>
+<div class="card"><div class="section-title">Strategy</div><div id="stockStrategy">Strategy 1</div><div class="muted">Selected strategy</div></div>
+</section>
+</section>
+
+<section class="card small"><div class="section-title">System Log</div><pre id="log">V4 ready. All strategies are paper-only. No live orders are enabled.</pre></section>
 </main>
 <script src="app.js"></script>
 </body>
