@@ -1,5 +1,6 @@
 const CAPITAL=100000;
-let running=false,timer=null,selectedStrategy=1,points=[{t:"09:15",v:CAPITAL}],peak=CAPITAL,dd=0;
+let running=false,timer=null,selectedStrategy=1,points=[{t:"09:15:00",v:CAPITAL}],peak=CAPITAL,dd=0;
+let cash=CAPITAL, realized=0, trades=[], positions={};
 const strategies=[
 {id:1,name:"Strategy 1 — AI Multi-Filter",desc:"Transformer/LSTM probability + EMA + RSI + MACD + VWAP + Volume + ATR/Risk filters.",trades:182,win:68,pnl:12.4,dd:5.1,pf:1.71,reg:[5,4,2,4]},
 {id:2,name:"Strategy 2 — Supertrend AI",desc:"Supertrend trend regime + AI confirmation + EMA/RSI/Volume filters + ATR risk.",trades:165,win:71,pnl:14.1,dd:6.2,pf:1.83,reg:[4,5,2,3]},
@@ -15,7 +16,56 @@ function renderPerformance(){let html='<div class="row head"><span>Strategy</spa
 function renderRegimes(){let names=["Bull","Bear","Sideways","High Vol"];let h='<div class="regime" style="color:#8091a7"><b>Strategy</b><b>Bull</b><b>Bear</b><b>Sideways</b><b>High Vol</b></div>';strategies.slice(0,2).forEach(s=>h+=`<div class="regime"><b>S${s.id}</b>${s.reg.map(x=>`<span>${"★".repeat(x)}${"☆".repeat(5-x)}</span>`).join("")}</div>`);$("regimes").innerHTML=h}
 function renderValidation(){let items=["Minimum paper-trading period","Minimum number of trades","Positive expectancy","Profit factor above threshold","Maximum drawdown acceptable","Out-of-sample test passed","Transaction costs included","Slippage included","Multiple market regimes tested"];$("validation").innerHTML=items.map((x,i)=>`<div class="check ${i<3?"pass":"pending"}">${i<3?"☑":"☐"} ${x} <span>${i<3?"PASS":"PENDING"}</span></div>`).join("")}
 function renderRecommendation(){$("recommendation").innerHTML="<b>Current paper leader: Strategy 2 — Supertrend AI</b><br>It currently has the strongest sample profit factor and P&L among the populated strategies. This is only a paper-trading observation, not a live-trading approval. Continue validation across more trades and market regimes."}
-function portfolio(){return points.at(-1).v}
+function openPositionValue(){
+ return Object.values(positions).reduce((sum,p)=>sum+p.qty*p.price,0);
+}
+function unrealizedPnl(){
+ return Object.values(positions).reduce((sum,p)=>sum+p.qty*(p.price-p.entry),0);
+}
+function portfolio(){return cash+openPositionValue();}
+function recordTrade(stock,side,qty,price){
+ const now=new Date().toLocaleTimeString([], {hour12:false});
+ if(side==="BUY"){
+   const cost=qty*price;
+   if(cost>cash)return false;
+   cash-=cost;
+   positions[stock.s]={stock:stock.s,qty,entry:price,price};
+   trades.unshift({time:now,stock:stock.s,side,qty,price,exit:"—",pnl:"—",strategy:"S"+selectedStrategy});
+ }else{
+   const pos=positions[stock.s]; if(!pos)return false;
+   const sellQty=Math.min(qty,pos.qty),pnl=(price-pos.entry)*sellQty;
+   cash+=sellQty*price; realized+=pnl;
+   trades.unshift({time:now,stock:stock.s,side:"SELL",qty:sellQty,price:pos.entry,exit:price,pnl:(pnl>=0?"+":"")+money(pnl),strategy:"S"+selectedStrategy});
+   delete positions[stock.s];
+ }
+ if(trades.length>40)trades.pop();
+ return true;
+}
+function maybeTrade(){
+ const candidates=stocks.filter(s=>s.a!=="HOLD");
+ if(Math.random()>.58){
+   const s=candidates[Math.floor(Math.random()*candidates.length)];
+   if(s.a==="BUY" && !positions[s.s]){
+     const qty=Math.max(1,Math.floor(Math.min(100,cash*.12/s.p)));
+     recordTrade(s,"BUY",qty,s.p);
+   }else if(s.a==="SELL" && positions[s.s]){
+     recordTrade(s,"SELL",positions[s.s].qty,s.p);
+   }
+ }
+}
+function renderTradeLedger(){
+ $("buyCount").textContent=trades.filter(t=>t.side==="BUY").length;
+ $("sellCount").textContent=trades.filter(t=>t.side==="SELL").length;
+ $("openCount").textContent=Object.keys(positions).length;
+ $("closedCount").textContent=trades.filter(t=>t.side==="SELL").length;
+ if(!trades.length){$("tradeLog").innerHTML='<div class="empty">No automatic trades yet. Start the paper engine.</div>';return}
+ $("tradeLog").innerHTML='<div class="trade-row head"><span>Time</span><span>Stock</span><span>Side</span><span>Qty</span><span>Entry → Exit</span><span>P&L</span></div>'+
+ trades.map(t=>`<div class="trade-row"><span>${t.time}</span><b>${t.stock}</b><span class="${t.side==="BUY"?"buytxt":"selltxt"}">${t.side}</span><span>${t.qty}</span><span>${money(t.price)} → ${t.exit==="—"?"—":money(t.exit)}</span><span>${t.pnl}</span></div>`).join("");
+}
+function updatePositions(){
+ Object.keys(positions).forEach(k=>{let s=stocks.find(x=>x.s===k);if(s)positions[k].price=s.p});
+}
+
 function draw(){
  const c=$("chart"),r=c.getBoundingClientRect(),d=devicePixelRatio||1;
  c.width=r.width*d;c.height=r.height*d;
@@ -54,8 +104,35 @@ function draw(){
  ctx.fillStyle="#9aa9ba";ctx.fillText("Date / Time",w/2-25,h-2);
  ctx.save();ctx.translate(12,h/2+30);ctx.rotate(-Math.PI/2);ctx.fillText("INR (₹)",0,0);ctx.restore();
 }
-function render(){let v=portfolio(),pnl=v-CAPITAL,pct=pnl/CAPITAL*100;$("current").textContent=money(v);$("pnl").textContent=(pnl>=0?"+":"")+money(pnl);$("pnl").style.color=pnl>=0?"#6ee7b7":"#ff7b8b";$("pnlPct").textContent=(pct>=0?"+":"")+pct.toFixed(2)+"%";$("drawdown").textContent=money(dd);$("engine").textContent=running?"RUNNING":"STOPPED";$("engine").style.color=running?"#6ee7b7":"#ff7b8b";draw()}
-function tick(){if(!running)return;stocks.forEach(x=>x.p=Math.max(1,x.p+(Math.random()-.48)*3.2));let v=Math.max(0,portfolio()+(Math.random()-.47)*180),t=new Date().toLocaleTimeString([], {hour12:false});points.push({t,v});if(points.length>100)points.shift();peak=Math.max(peak,v);dd=Math.max(dd,peak-v);renderWatch();render()}
+function render(){
+ updatePositions();
+ let v=portfolio(),pnl=v-CAPITAL,pct=pnl/CAPITAL*100,upnl=unrealizedPnl();
+ $("current").textContent=money(v);
+ $("pnl").textContent=(pnl>=0?"+":"")+money(pnl);
+ $("pnl").style.color=pnl>=0?"#6ee7b7":"#ff7b8b";
+ $("pnlPct").textContent=(pct>=0?"+":"")+pct.toFixed(2)+"%";
+ $("drawdown").textContent=money(dd);
+ $("cash").textContent=money(cash);
+ $("openValue").textContent=money(openPositionValue());
+ $("realized").textContent=(realized>=0?"+":"")+money(realized);
+ $("unrealized").textContent=(upnl>=0?"+":"")+money(upnl);
+ $("realized").style.color=realized>=0?"#6ee7b7":"#ff7b8b";
+ $("unrealized").style.color=upnl>=0?"#6ee7b7":"#ff7b8b";
+ $("engine").textContent=running?"RUNNING":"STOPPED";
+ $("engine").style.color=running?"#6ee7b7":"#ff7b8b";
+ renderTradeLedger();draw();
+}
+function tick(){
+ if(!running)return;
+ stocks.forEach(x=>x.p=Math.max(1,x.p+(Math.random()-.48)*3.2));
+ updatePositions();
+ maybeTrade();
+ updatePositions();
+ let v=portfolio(),t=new Date().toLocaleTimeString([], {hour12:false});
+ points.push({t,v});if(points.length>100)points.shift();
+ peak=Math.max(peak,v);dd=Math.max(dd,peak-v);
+ renderWatch();render();
+}
 function openStock(i){let s=stocks[i];$("stockName").textContent=s.s;$("stockPrice").textContent=money(s.p);$("stockChange").textContent=((s.p-s.base)/s.base*100>=0?"+":"")+((s.p-s.base)/s.base*100).toFixed(2)+"%";$("stockSignal").textContent=s.a;$("stockSignal").className="bigSignal "+s.a.toLowerCase();$("stockConf").textContent=s.c+"%";$("stockStrategy").textContent="Strategy "+selectedStrategy;showTab("stock");drawCandles(s)}
 let selectedTimeframe="5m";
 function drawCandles(s){
@@ -111,6 +188,6 @@ $("activate").onclick=()=>{selectStrategy(selectedStrategy);log("Strategy "+sele
 $("start").onclick=()=>{if(running)return;running=true;log("Paper engine started with Strategy "+selectedStrategy);render();timer=setInterval(tick,2000)};
 $("stop").onclick=()=>{running=false;clearInterval(timer);log("Paper engine stopped.");render()};
 $("emergency").onclick=()=>{running=false;clearInterval(timer);log("EMERGENCY STOP — all paper execution stopped.");render()};
-$("reset").onclick=()=>{running=false;clearInterval(timer);points=[{t:"09:15:00",v:CAPITAL}];peak=CAPITAL;dd=0;stocks.forEach(x=>x.p=x.base);log("Paper session reset.");renderWatch();render()};
+$("reset").onclick=()=>{running=false;clearInterval(timer);points=[{t:"09:15:00",v:CAPITAL}];peak=CAPITAL;dd=0;cash=CAPITAL;realized=0;trades=[];positions={};stocks.forEach(x=>x.p=x.base);log("Paper session reset. Trade ledger cleared.");renderWatch();render()};
 $("backDash").onclick=()=>showTab("dashboard");window.addEventListener("resize",()=>{draw();drawCandles(stocks[0])});
 renderWatch();renderStrategies();renderPerformance();renderRegimes();renderValidation();renderRecommendation();render();

@@ -1,20 +1,35 @@
-Mokya’s AI Algo Trader V4.1 Revised
+Mokya’s AI Algo Trader V4.2
 
-Portfolio chart:
-- INR (₹) Y-axis
-- Date/time X-axis
-- NO vertical dotted grid across the chart
-- ONLY one vertical dotted cursor at the latest/current data point
-- Latest INR value shown above the latest point
-- Horizontal dotted starting-capital benchmark
-- Solid actual portfolio-value trend
+Major addition: transaction-based paper trading accounting.
 
-Stock chart:
-- INR (₹) Y-axis
-- Date/time X-axis
-- Green/red candlesticks
-- Vertical dotted time grid
-- Selectable 3m, 5m, 15m, 30m, 1H, 1D
+Dashboard now separates:
+- Starting Capital
+- Cash Balance
+- Open Position Value
+- Total Portfolio Value
+- Realized P&L
+- Unrealized P&L
+- Total P&L
+- P&L %
+- BUY trade count
+- SELL trade count
+- Open positions
+- Closed trades
+- Automatic Paper Trade Ledger
 
-All V4 Strategy Lab and paper-trading features remain unchanged.
-Data is simulated until Angel One integration.
+Every simulated automatic BUY/SELL is recorded with:
+- Date/time
+- Stock
+- Side
+- Quantity
+- Entry
+- Exit
+- P&L
+- Strategy version
+
+Portfolio value is calculated from:
+Cash + current market value of open positions.
+
+P&L is calculated from the transaction-based paper portfolio, not random portfolio movement.
+
+V4.2 remains simulated until Angel One live data integration.
