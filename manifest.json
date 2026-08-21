@@ -1,9 +1,1 @@
-{
-  "name":"AI Algo Trader",
-  "short_name":"AI Trader",
-  "start_url":"./",
-  "display":"standalone",
-  "background_color":"#07111f",
-  "theme_color":"#07111f",
-  "icons":[]
-}
+{"name":"AI Algo Trader","short_name":"AI Trader","start_url":"./","display":"standalone","background_color":"#07111f","theme_color":"#07111f","icons":[]}
