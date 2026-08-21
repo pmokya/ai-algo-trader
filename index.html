@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<title>AI Algo Trader</title>
+</head>
+<body>
+<header>
+  <div>
+    <div class="eyebrow">AI ALGO TRADER</div>
+    <h1>Trading Dashboard</h1>
+  </div>
+  <span id="mode" class="badge">● PAPER</span>
+</header>
+
+<main>
+<section class="hero card">
+  <div><span class="muted">Engine</span><strong id="engine">STOPPED</strong></div>
+  <div class="pnl"><span class="muted">Today's P&amp;L</span><strong id="pnl">₹0</strong></div>
+</section>
+
+<section class="grid">
+  <div class="metric card"><span>Capital</span><b id="capital">₹1,00,000</b></div>
+  <div class="metric card"><span>Positions</span><b id="positions">0</b></div>
+  <div class="metric card"><span>Win Rate</span><b id="winrate">68%</b></div>
+  <div class="metric card"><span>Trades</span><b id="trades">0</b></div>
+</section>
+
+<section class="card">
+  <div class="section-title">AI Signals <span class="live">LIVE DEMO</span></div>
+  <div id="signals"></div>
+</section>
+
+<section class="card">
+  <div class="section-title">Open Positions</div>
+  <div id="positionsList" class="empty">No open positions</div>
+</section>
+
+<section class="controls">
+  <button id="start" class="primary">▶ START</button>
+  <button id="stop">■ STOP</button>
+  <button id="emergency" class="danger">🛑 EMERGENCY STOP</button>
+</section>
+
+<section class="card small">
+  <div class="section-title">System Log</div>
+  <pre id="log">Ready. Paper trading mode is active.</pre>
+</section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
